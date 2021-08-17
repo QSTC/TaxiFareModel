@@ -4,9 +4,13 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import train_test_split
 
 from TaxiFareModel.encoders import DistanceTransformer, TimeFeaturesEncoder
 from TaxiFareModel.utils import compute_rmse
+from TaxiFareModel.data import get_data
+from TaxiFareModel.data import clean_data
+
 
 class Trainer():
     def __init__(self, X, y):
@@ -33,26 +37,34 @@ class Trainer():
                                          remainder="drop")
         pipe = Pipeline([('preproc', preproc_pipe),
                          ('linear_model', LinearRegression())])
-        return pipe
+        self.pipeline=pipe
 
-    def train(self, X_train, y_train, pipeline):
+    def run(self):
         '''returns a trained pipelined model'''
-        pipeline.fit(X_train, y_train)
-        return pipeline
+        """option 1, mais il faut que la méthode set_pipeline return pipe"""
+        #self.pipeline=self.set_pipeline()
+        #self.pipeline.fit(self.X, self.y)
 
-    def evaluate(self, X_test, y_test, pipeline):
+        """option 2, quand la méthode set_pipeline met à jour l'attribut pipeline"""
+        self.set_pipeline()
+        self.pipeline.fit(self.X, self.y)
+
+
+    def evaluate(self, X_test, y_test):
         '''returns the value of the RMSE'''
-        y_pred = pipeline.predict(X_test)
+        y_pred = self.pipeline.predict(X_test)
         rmse = compute_rmse(y_pred, y_test)
         print(rmse)
         return rmse
 
 
 if __name__ == "__main__":
-    # get data
-    # clean data
-    # set X and y
-    # hold out
-    # train
-    # evaluate
-    print('TODO')
+    df = get_data()
+    df=clean_data(df)
+    y = df["fare_amount"]
+    X = df.drop("fare_amount", axis=1)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    trainer = Trainer(X_train, y_train)
+    trainer.run()
+    trainer.evaluate(X_test, y_test)
+    print(df.head())
