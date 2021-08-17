@@ -1,0 +1,15 @@
+artifact_uri: file:///Users/q/code/QSTC/TaxiFareModel/mlruns/1/11e0e32611db4dbfbcff8cdd4f252a56/artifacts
+end_time: null
+entry_point_name: ''
+experiment_id: '1'
+lifecycle_stage: active
+name: ''
+run_id: 11e0e32611db4dbfbcff8cdd4f252a56
+run_uuid: 11e0e32611db4dbfbcff8cdd4f252a56
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1629208200986
+status: 1
+tags: []
+user_id: unknown
