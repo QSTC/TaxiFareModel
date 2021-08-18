@@ -1,4 +1,5 @@
 # imports
+from numpy.core.getlimits import MachArLike
 from sklearn.pipeline import Pipeline
 from sklearn.preprocessing import StandardScaler
 from sklearn.preprocessing import OneHotEncoder
@@ -10,6 +11,7 @@ from TaxiFareModel.encoders import DistanceTransformer, TimeFeaturesEncoder
 from TaxiFareModel.utils import compute_rmse
 from TaxiFareModel.data import get_data
 from TaxiFareModel.data import clean_data
+from TaxiFareModel.ml_flow_base import MLFlowBase
 
 
 class Trainer():
@@ -57,14 +59,43 @@ class Trainer():
         print(rmse)
         return rmse
 
+    def train(self):
+
+        # mlflow: create a run
+        self.mlflow_create_run()
+
+        # get the data
+        X, y = get_data()
+
+        # holdout
+        X_train, X_test, y_train, y_test = self.holdout(X, y)
+
+        # get the pipeline
+        pipeline = self.set_pipeline()
+
+        # fit the pipeline
+        pipeline.fit(X_train, y_train)
+
+        # evaluate the perf
+        rmse = self.eval_perf(pipeline, X_test, y_test)
+
+        # save the parameters and metrics of the model
+        self.mlflow_log_param("data_size", 1000)
+        self.mlflow_log_param("model_name", "linear regression")
+
+        # save the rmse
+        self.mlflow_log_metric("rmse", rmse)
+
 
 if __name__ == "__main__":
-    df = get_data()
-    df=clean_data(df)
-    y = df["fare_amount"]
-    X = df.drop("fare_amount", axis=1)
-    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
-    trainer = Trainer(X_train, y_train)
-    trainer.run()
-    trainer.evaluate(X_test, y_test)
-    print(df.head())
+    #df = get_data()
+    #df=clean_data(df)
+    #y = df["fare_amount"]
+    #X = df.drop("fare_amount", axis=1)
+    #X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3)
+    #trainer = Trainer(X_train, y_train)
+    #trainer.run()
+    #trainer.evaluate(X_test, y_test)
+
+    trainer=Trainer()
+    trainer.train()
